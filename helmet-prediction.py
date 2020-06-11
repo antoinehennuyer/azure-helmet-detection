@@ -9,6 +9,19 @@ import os.path
 plt.rcParams.update({'font.size': 8})
 path = "test_img.jpg"
 
+def add_data(file,tab):
+    if not os.path.exists(file):
+        with open(file, 'a', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(["id","user", "helmet", "proba","date"])
+                writer.writerows(tab)
+    else:
+        with open(file, 'a', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerows(tab)
+                
+    
+
 # SEND TO API HELMET DETECTION
 
 # SEND TO API FACE RECOGNITION
@@ -21,6 +34,7 @@ root.filename =  filedialog.askopenfilename(initialdir = "/",title = "Select fil
 img = plt.imread(root.filename)
 figure, ax = plt.subplots(1)
 prediction_list = json_test["predictions"]
+tab = []
 for predic in prediction_list:
     if predic["probability"] > 0.5:
         print("prediction detected ! It is:" + predic["tagName"])
@@ -35,18 +49,13 @@ for predic in prediction_list:
         proba = predic["probability"] * 100
         plt.text(left_corner + 5, top_corner - 5, predic["tagName"] + ": "+ str(round(proba,1)) + "%", color="white")
         ax.imshow(img)
+        tab.append([1,"toto",predic["tagName"],predic["probability"],json_test["created"]])
         #TODO Save image
         plt.show()
-        if not os.path.exists('test.csv'):
-            with open('test.csv', 'a', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow(["id","user", "helmet", "proba","date"])
-        else:
-            with open('test.csv', 'a', newline='') as file:
-                writer = csv.writer(file)
-                writer.writerow(["1","toto", "yes", "0.95","12 juin"])
+        
 
 
+add_data("toto.csv",tab)
             
 root.destroy()
 root.quit()
