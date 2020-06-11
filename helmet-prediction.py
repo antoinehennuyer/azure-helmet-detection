@@ -3,6 +3,8 @@ from matplotlib import image
 from tkinter import filedialog
 from tkinter import *
 import json
+import csv
+import os.path
 
 plt.rcParams.update({'font.size': 8})
 path = "test_img.jpg"
@@ -35,6 +37,17 @@ for predic in prediction_list:
         ax.imshow(img)
         #TODO Save image
         plt.show()
+        if not os.path.exists('test.csv'):
+            with open('test.csv', 'a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(["id","user", "helmet", "proba","date"])
+        else:
+            with open('test.csv', 'a', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(["1","toto", "yes", "0.95","12 juin"])
+
+
+            
 root.destroy()
 root.quit()
 # PRINT IF SAS OPEN OR NOT
