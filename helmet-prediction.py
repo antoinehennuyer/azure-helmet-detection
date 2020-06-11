@@ -677,7 +677,7 @@ for predic in prediction_list:
         ax.add_patch(rect)
         ax.imshow(img)
         plt.show()
-
+root.destroy()
 # PRINT IF SAS OPEN OR NOT
 
 # WRITE ON CSV THE RESULT
