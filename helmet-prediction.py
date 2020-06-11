@@ -13,7 +13,7 @@ def add_data(file,tab):
     if not os.path.exists(file):
         with open(file, 'a', newline='') as f:
                 writer = csv.writer(f)
-                writer.writerow(["id","user", "helmet", "proba","date"])
+                writer.writerow(["id","user", "tag", "proba","date"])
                 writer.writerows(tab)
     else:
         with open(file, 'a', newline='') as f:
@@ -49,8 +49,8 @@ for predic in prediction_list:
         proba = predic["probability"] * 100
         plt.text(left_corner + 5, top_corner - 5, predic["tagName"] + ": "+ str(round(proba,1)) + "%", color="white")
         ax.imshow(img)
-        tab.append([1,"toto",predic["tagName"],predic["probability"],json_test["created"]])
-        #TODO Save image
+        plt.savefig("result.png",bblob_inches='tight')
+        tab.append([json_test["id"],"toto",predic["tagName"],predic["probability"],json_test["created"]])
         plt.show()
         
 
