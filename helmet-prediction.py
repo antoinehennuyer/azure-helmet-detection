@@ -4,7 +4,7 @@ from tkinter import filedialog
 from tkinter import *
 import json
 
-
+plt.rcParams.update({'font.size': 8})
 path = "test_img.jpg"
 
 # SEND TO API HELMET DETECTION
@@ -27,10 +27,18 @@ for predic in prediction_list:
         width = predic["boundingBox"]["width"] * img.shape[1]
         height = predic["boundingBox"]["height"] * img.shape[0]
         rect = patches.Rectangle((left_corner, top_corner), width, height, edgecolor='r', facecolor="none")
+        rect2 = patches.Rectangle((left_corner, top_corner - 20), 130,20, color = "r")
+        ax.add_patch(rect2)
         ax.add_patch(rect)
+        proba = predic["probability"] * 100
+        plt.text(left_corner + 5, top_corner - 5, predic["tagName"] + ": "+ str(round(proba,1)) + "%", color="white")
         ax.imshow(img)
+        #TODO Save image
         plt.show()
 root.destroy()
+root.quit()
 # PRINT IF SAS OPEN OR NOT
 
 # WRITE ON CSV THE RESULT
+
+# PUSH IMAGE ON DATALAKE
