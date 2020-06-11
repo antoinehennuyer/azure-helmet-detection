@@ -1,5 +1,9 @@
 from matplotlib import pyplot as plt, patches
 from matplotlib import image
+from tkinter import filedialog
+from tkinter import *
+
+
 
 path = "test_img.jpg"
 
@@ -656,9 +660,11 @@ json_test = {
         }
     }]
 }
-img = plt.imread(path)
-figure, ax = plt.subplots(1)
 
+root = Tk()
+root.filename =  filedialog.askopenfilename(initialdir = "/",title = "Select file",filetypes = (("jpeg files","*.jpg"),("all files","*.*")))
+img = plt.imread(root.filename)
+figure, ax = plt.subplots(1)
 prediction_list = json_test["predictions"]
 for predic in prediction_list:
     if predic["probability"] > 0.5:
