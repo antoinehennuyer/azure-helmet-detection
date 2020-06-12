@@ -19,7 +19,8 @@ PROJECT_NAME = "test%20prediction%20model"
 
 ACCOUNT_NAME = 'imagestoragehelmet'
 ACCOUNT_KEY = 'OVP3UZeeo8YjT/wAyZ35mJeMhKmPbt3T8AP0xAhbEHOMC5t0ImT3t7PtTOrYN3B9Jqaq1HmKpljIO7jTwHLFYQ=='
-CONTAINER_NAME = 'imagecontainer'
+CONTAINER_NAME_IMAGE = 'imagecontainer'
+CONTAINER_NAME_CSV = "csvcontainer"
 
 def get_img():
     root = Tk()
@@ -117,10 +118,9 @@ add_data("toto.csv",tab)
 
 # PUSH IMAGE ON DATALAKE
 
-
-
 block_blob_service = BlockBlobService(
     account_name=ACCOUNT_NAME,
     account_key=ACCOUNT_KEY
 )
-block_blob_service.create_blob_from_path(CONTAINER_NAME, re.split("/", filename)[-1], filename)
+block_blob_service.create_blob_from_path(CONTAINER_NAME_IMAGE, re.split("/", filename)[-1], filename)
+block_blob_service.create_blob_from_path(CONTAINER_NAME_CSV, "test.csv", "toto.csv")
