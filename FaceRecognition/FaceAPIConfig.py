@@ -29,7 +29,7 @@ def initGroup(face_client, PERSON_GROUP_ID):
         print('InitGroup: Create new person group {}'.format(PERSON_GROUP_ID))
         face_client.person_group.create(person_group_id=PERSON_GROUP_ID, name=PERSON_GROUP_ID)
 
-    dirname = './dataset3/'
+    dirname = './dataset/'
     list_sub_dir = os.listdir(dirname)
     list_person = {}
     for sub_dir in list_sub_dir:
@@ -47,7 +47,7 @@ def initGroup(face_client, PERSON_GROUP_ID):
 
 def initDataSet():
     data_set = {}
-    dirname = './dataset3/'
+    dirname = './dataset/'
     list_sub_dir = os.listdir(dirname)
     for sub_dir in list_sub_dir:
         data_set[sub_dir] = [dirname + sub_dir + '/' + file for file in os.listdir(dirname + sub_dir)]
