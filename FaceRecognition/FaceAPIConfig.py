@@ -24,23 +24,19 @@ def initFaceClient():
 def initGroup(face_client, PERSON_GROUP_ID):
     print('Person group:', PERSON_GROUP_ID) #Person Group ID must be lower case, alphanumeric, and/or with '-', '_'
 
-    #face_client.person_group.create(person_group_id=PERSON_GROUP_ID, name=PERSON_GROUP_ID)
     face_client.person_group.get(person_group_id=PERSON_GROUP_ID)
 
-    woman = face_client.person_group_person.create(PERSON_GROUP_ID, "Woman")
-    man = face_client.person_group_person.create(PERSON_GROUP_ID, "Man")
-    child = face_client.person_group_person.create(PERSON_GROUP_ID, "Child")
+    fayssal = face_client.person_group_person.create(PERSON_GROUP_ID, "Fayssal")
+    other = face_client.person_group_person.create(PERSON_GROUP_ID, "Other")
 
     data_set = initDataSet()
 
     for person in data_set:
         for image in data_set[person]:
             img = open(image, 'r+b')
-            id = woman.person_id
-            if person == 'Man':
-                id = man.person_id
-            elif person == 'Child':
-                id = child.person_id
+            id = fayssal.person_id
+            if person == 'Other':
+                id = other.person_id
             face_client.person_group_person.add_face_from_stream(PERSON_GROUP_ID, id, img)
 
 def initDataSet():
