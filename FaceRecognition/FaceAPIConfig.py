@@ -105,11 +105,22 @@ def getRectangle(faceDictionary):
     bottom = top + rect.height
     return ((left, top), (right, bottom))
 
+def cleanModel(PERSON_GROUP_ID):
+    list_person_group = face_client.person_group.list()
+    for person in list_person_group:
+        if person.name == PERSON_GROUP_ID:
+            face_client.person_group.delete(person_group_id=PERSON_GROUP_ID)
+            print("Clean Model : Deleted the person group {} from the source location.".format(PERSON_GROUP_ID))
+            print()
+            return
+    print('Clean Model : No person group {} exist'.format(PERSON_GROUP_ID))
+
 if __name__ == '__main__':
     PERSON_GROUP_ID = 'my-unique-person-group'
     face_client = initFaceClient()
+    cleanModel(PERSON_GROUP_ID)
     initGroup(face_client, PERSON_GROUP_ID)
-    trainFaceClient(face_client, PERSON_GROUP_ID)
+    #trainFaceClient(face_client, PERSON_GROUP_ID)
 
     path = 'test-image-person-group.jpg'
     img = openMyImg(path)
