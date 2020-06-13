@@ -29,22 +29,16 @@ def initGroup(face_client, PERSON_GROUP_ID):
         print('InitGroup: Create new person group {}'.format(PERSON_GROUP_ID))
         face_client.person_group.create(person_group_id=PERSON_GROUP_ID, name=PERSON_GROUP_ID)
 
-    dirname = './dataset3/'
+    dirname = './dataset2/'
     list_sub_dir = os.listdir(dirname)
     list_person = {}
     for sub_dir in list_sub_dir:
         list_person[sub_dir] = face_client.person_group_person.create(PERSON_GROUP_ID, sub_dir)
-    #fayssal = face_client.person_group_person.create(PERSON_GROUP_ID, "Fayssal")
-    #other = face_client.person_group_person.create(PERSON_GROUP_ID, "Other")
-
     data_set = initDataSet()
 
     for person in data_set:
         for image in data_set[person]:
             img = open(image, 'r+b')
-            #id = fayssal.person_id
-            #if person == 'Other':
-            #    id = other.person_id
             id = list_person[person].person_id
             try:
                 face_client.person_group_person.add_face_from_stream(PERSON_GROUP_ID, id, img)
@@ -53,15 +47,10 @@ def initGroup(face_client, PERSON_GROUP_ID):
 
 def initDataSet():
     data_set = {}
-    dirname = './dataset3/'
+    dirname = './dataset2/'
     list_sub_dir = os.listdir(dirname)
     for sub_dir in list_sub_dir:
         data_set[sub_dir] = [dirname + sub_dir + '/' + file for file in os.listdir(dirname + sub_dir)]
-    #data_set['fayssal'] = ['./dataset/fayssal/' + file for file in os.listdir('./dataset/fayssal') if file.startswith("fayssal")]
-    #data_set['other'] = ['./dataset/other/' + file for file in os.listdir('./dataset/other') if file.startswith("other")]
-
-    #data_set['fayssal'] = [file for file in glob.glob('*.jpg') if file.startswith("fayssal")]
-    #data_set['other'] = [file for file in glob.glob('*.jpg') if file.startswith("other")]
     return data_set
 
 
@@ -95,7 +84,6 @@ def predictFaceClient(face_client, image, PERSON_GROUP_ID):
     for face in faces:
         face_ids.append(face.face_id)
     results = face_client.face.identify(face_ids, PERSON_GROUP_ID) # Identify faces
-    print("results: " + str(results[0]))
     for person in results:
         if len(person.candidates) > 0:
             name = face_client.person_group_person.get(PERSON_GROUP_ID, person.candidates[0].person_id).name
@@ -137,12 +125,21 @@ def findGroupID(face_client, GROUP_ID):
     print('No person group {} exist'.format(PERSON_GROUP_ID))
     return 0
 
+def testModel(face_client, GROUP_ID):
+    files = os.listdir('test')
+    for file in files:
+        img = openMyImg('test/' + file)
+        print(file + ' => ')
+        print(predictFaceClient(face_client, img, GROUP_ID))
+        print()
+
 if __name__ == '__main__':
     PERSON_GROUP_ID = 'my-unique-person-groupe'
     face_client = initFaceClient()
     #cleanModel(face_client, PERSON_GROUP_ID)
     #initGroup(face_client, PERSON_GROUP_ID)
     #trainFaceClient(face_client, PERSON_GROUP_ID)
-    path = 'megan-fox.jpeg'#'tomcruise.jpg'#'test-image-person-group.jpg'
-    img = openMyImg(path)
-    print(predictFaceClient(face_client, img, PERSON_GROUP_ID))
+
+    #img = openMyImg(sys.argv[1])
+    #print(predictFaceClient(face_client, img, PERSON_GROUP_ID))
+    testModel(face_client, PERSON_GROUP_ID)
