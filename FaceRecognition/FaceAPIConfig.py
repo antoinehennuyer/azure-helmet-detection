@@ -23,13 +23,9 @@ def initFaceClient():
 
 def initGroup(face_client, PERSON_GROUP_ID):
     print('Person group:', PERSON_GROUP_ID) #Person Group ID must be lower case, alphanumeric, and/or with '-', '_'
-    list_person_group = face_client.person_group.list()
-    find = 0
-    for person in list_person_group:
-        if person.name == PERSON_GROUP_ID:
-            face_client.person_group.get(person_group_id=PERSON_GROUP_ID)
-            find = 1
-    if not find:
+    if (findGroupID(face_client, PERSON_GROUP_ID)):
+        face_client.person_group.get(person_group_id=PERSON_GROUP_ID)
+    else:
         face_client.person_group.create(person_group_id=PERSON_GROUP_ID, name=PERSON_GROUP_ID)
 
     fayssal = face_client.person_group_person.create(PERSON_GROUP_ID, "Fayssal")
@@ -111,20 +107,22 @@ def getRectangle(faceDictionary):
     bottom = top + rect.height
     return ((left, top), (right, bottom))
 
-def cleanModel(PERSON_GROUP_ID):
+def cleanModel(face_client, PERSON_GROUP_ID):
+    if findGroupID(face_client, PERSON_GROUP_ID):
+        face_client.person_group.delete(person_group_id=PERSON_GROUP_ID)
+
+def findGroupID(face_client, GROUP_ID):
     list_person_group = face_client.person_group.list()
     for person in list_person_group:
-        if person.name == PERSON_GROUP_ID:
-            face_client.person_group.delete(person_group_id=PERSON_GROUP_ID)
-            print("Clean Model : Deleted the person group {} from the source location.".format(PERSON_GROUP_ID))
-            print()
-            return
-    print('Clean Model : No person group {} exist'.format(PERSON_GROUP_ID))
+        if person.name == GROUP_ID:
+            return 1
+    print('No person group {} exist'.format(PERSON_GROUP_ID))
+    return 0
 
 if __name__ == '__main__':
     PERSON_GROUP_ID = 'my-unique-person-group'
     face_client = initFaceClient()
-    cleanModel(PERSON_GROUP_ID)
+    cleanModel(face_client, PERSON_GROUP_ID)
     initGroup(face_client, PERSON_GROUP_ID)
     trainFaceClient(face_client, PERSON_GROUP_ID)
 
