@@ -23,8 +23,14 @@ def initFaceClient():
 
 def initGroup(face_client, PERSON_GROUP_ID):
     print('Person group:', PERSON_GROUP_ID) #Person Group ID must be lower case, alphanumeric, and/or with '-', '_'
-
-    face_client.person_group.get(person_group_id=PERSON_GROUP_ID)
+    list_person_group = face_client.person_group.list()
+    find = 0
+    for person in list_person_group:
+        if person.name == PERSON_GROUP_ID:
+            face_client.person_group.get(person_group_id=PERSON_GROUP_ID)
+            find = 1
+    if not find:
+        face_client.person_group.create(person_group_id=PERSON_GROUP_ID, name=PERSON_GROUP_ID)
 
     fayssal = face_client.person_group_person.create(PERSON_GROUP_ID, "Fayssal")
     other = face_client.person_group_person.create(PERSON_GROUP_ID, "Other")
@@ -120,8 +126,8 @@ if __name__ == '__main__':
     face_client = initFaceClient()
     cleanModel(PERSON_GROUP_ID)
     initGroup(face_client, PERSON_GROUP_ID)
-    #trainFaceClient(face_client, PERSON_GROUP_ID)
+    trainFaceClient(face_client, PERSON_GROUP_ID)
 
     path = 'test-image-person-group.jpg'
     img = openMyImg(path)
-    print(predictFaceClient(face_client, img, PRESON_GROUP_ID))
+    print(predictFaceClient(face_client, img, PERSON_GROUP_ID))
