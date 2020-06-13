@@ -72,7 +72,7 @@ def openMyImg(path):
     return open(image_array[0], 'r+b')
 
 
-def predictFaceClient(face_client, image):
+def predictFaceClient(face_client, image, PERSON_GROUP_ID):
     dict_face_recognition = {}
     face_ids = []
     faces = face_client.face.detect_with_stream(image)
@@ -80,6 +80,7 @@ def predictFaceClient(face_client, image):
         face_ids.append(face.face_id)
 
     results = face_client.face.identify(face_ids, PERSON_GROUP_ID) # Identify faces
+    print("results: " + str(results[0]))
     for person in results:
         dict_face_recognition[person.face_id] = getCoordinatesAndConfidence(person, faces)
     return  dict_face_recognition
@@ -130,4 +131,5 @@ if __name__ == '__main__':
 
     path = 'test-image-person-group.jpg'
     img = openMyImg(path)
-    print(predictFaceClient(face_client, img))
+    print(predictFaceClient(face_client, img, PRESON_GROUP_ID))
+    print("OK")

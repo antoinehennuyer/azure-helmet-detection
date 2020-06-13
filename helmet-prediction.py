@@ -7,6 +7,7 @@ import csv
 import os.path
 import http.client, urllib.request, urllib.parse, urllib.error, base64
 import re
+from FaceRecognition.FaceAPIConfig import initFaceClient, predictFaceClient, initGroup
 from azure.storage.blob import BlockBlobService
 
 plt.rcParams.update({'font.size': 8})
@@ -90,6 +91,14 @@ def send_api_helmet(filename):
     except Exception as e:
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
 
+def send_face_recognition(filename):
+    PERSON_GROUP_ID = "my-unique-person-group"
+    face_client = initFaceClient()
+    pic = open(filename, 'r+b')
+    initGroup(face_client, PERSON_GROUP_ID)
+    print(predictFaceClient(face_client, pic, PERSON_GROUP_ID))
+    pic.close()
+    
 
 
 #img, filename = get_img()
@@ -104,6 +113,7 @@ json_res = send_api_helmet(filename)
 
 # SEND TO API FACE RECOGNITION
 
+send_face_recognition(filename)
 # PRINT IMAGE DETECTION WITH PROBABILITIES
 
 tab = read_answer_api_helmet(json_res, img)
