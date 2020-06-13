@@ -26,25 +26,42 @@ def initGroup(face_client, PERSON_GROUP_ID):
     if (findGroupID(face_client, PERSON_GROUP_ID)):
         face_client.person_group.get(person_group_id=PERSON_GROUP_ID)
     else:
+        print('InitGroup: Create new person group {}'.format(PERSON_GROUP_ID))
         face_client.person_group.create(person_group_id=PERSON_GROUP_ID, name=PERSON_GROUP_ID)
 
-    fayssal = face_client.person_group_person.create(PERSON_GROUP_ID, "Fayssal")
-    other = face_client.person_group_person.create(PERSON_GROUP_ID, "Other")
+    dirname = './dataset3/'
+    list_sub_dir = os.listdir(dirname)
+    list_person = {}
+    for sub_dir in list_sub_dir:
+        list_person[sub_dir] = face_client.person_group_person.create(PERSON_GROUP_ID, sub_dir)
+    #fayssal = face_client.person_group_person.create(PERSON_GROUP_ID, "Fayssal")
+    #other = face_client.person_group_person.create(PERSON_GROUP_ID, "Other")
 
     data_set = initDataSet()
 
     for person in data_set:
         for image in data_set[person]:
             img = open(image, 'r+b')
-            id = fayssal.person_id
-            if person == 'Other':
-                id = other.person_id
-            face_client.person_group_person.add_face_from_stream(PERSON_GROUP_ID, id, img)
+            #id = fayssal.person_id
+            #if person == 'Other':
+            #    id = other.person_id
+            id = list_person[person].person_id
+            try:
+                face_client.person_group_person.add_face_from_stream(PERSON_GROUP_ID, id, img)
+            except:
+                print(image)
 
 def initDataSet():
     data_set = {}
-    data_set['fayssal'] = [file for file in glob.glob('*.jpg') if file.startswith("fayssal")]
-    data_set['other'] = [file for file in glob.glob('*.jpg') if file.startswith("other")]
+    dirname = './dataset3/'
+    list_sub_dir = os.listdir(dirname)
+    for sub_dir in list_sub_dir:
+        data_set[sub_dir] = [dirname + sub_dir + '/' + file for file in os.listdir(dirname + sub_dir)]
+    #data_set['fayssal'] = ['./dataset/fayssal/' + file for file in os.listdir('./dataset/fayssal') if file.startswith("fayssal")]
+    #data_set['other'] = ['./dataset/other/' + file for file in os.listdir('./dataset/other') if file.startswith("other")]
+
+    #data_set['fayssal'] = [file for file in glob.glob('*.jpg') if file.startswith("fayssal")]
+    #data_set['other'] = [file for file in glob.glob('*.jpg') if file.startswith("other")]
     return data_set
 
 
@@ -81,7 +98,8 @@ def predictFaceClient(face_client, image, PERSON_GROUP_ID):
     print("results: " + str(results[0]))
     for person in results:
         if len(person.candidates) > 0:
-            dict_face_recognition[person.face_id] = getCoordinatesAndConfidence(person, faces)
+            name = face_client.person_group_person.get(PERSON_GROUP_ID, person.candidates[0].person_id).name
+            dict_face_recognition[name] = getCoordinatesAndConfidence(person, faces)
     return dict_face_recognition
 
 def getCoordinatesAndConfidence(person, faces):
@@ -120,12 +138,11 @@ def findGroupID(face_client, GROUP_ID):
     return 0
 
 if __name__ == '__main__':
-    PERSON_GROUP_ID = 'my-unique-person-group'
+    PERSON_GROUP_ID = 'my-unique-person-groupe'
     face_client = initFaceClient()
-    cleanModel(face_client, PERSON_GROUP_ID)
-    initGroup(face_client, PERSON_GROUP_ID)
-    trainFaceClient(face_client, PERSON_GROUP_ID)
-
-    path = 'test-image-person-group.jpg'
+    #cleanModel(face_client, PERSON_GROUP_ID)
+    #initGroup(face_client, PERSON_GROUP_ID)
+    #trainFaceClient(face_client, PERSON_GROUP_ID)
+    path = 'megan-fox.jpeg'#'tomcruise.jpg'#'test-image-person-group.jpg'
     img = openMyImg(path)
     print(predictFaceClient(face_client, img, PERSON_GROUP_ID))
