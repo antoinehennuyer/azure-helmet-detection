@@ -41,9 +41,8 @@ def initGroup(face_client, PERSON_GROUP_ID):
 
 def initDataSet():
     data_set = {}
-    data_set['woman'] = [file for file in glob.glob('*.jpg') if file.startswith("woman")]
-    data_set['man'] = [file for file in glob.glob('*.jpg') if file.startswith("man")]
-    data_set['child'] = [file for file in glob.glob('*.jpg') if file.startswith("child")]
+    data_set['fayssal'] = [file for file in glob.glob('*.jpg') if file.startswith("fayssal")]
+    data_set['other'] = [file for file in glob.glob('*.jpg') if file.startswith("other")]
     return data_set
 
 
@@ -81,22 +80,7 @@ def predictFaceClient(face_client, image, PERSON_GROUP_ID):
     for person in results:
         if len(person.candidates) > 0:
             dict_face_recognition[person.face_id] = getCoordinatesAndConfidence(person, faces)
-    return  dict_face_recognition
-    """
-    print(dict_face_recognition)
-    print('Identifying faces in {}'.format(os.path.basename(image.name)))
-    if not results:
-        print('No person identified in the person group for faces from {}.'.format(os.path.basename(image.name)))
-    for person in results:
-        print('Person for face ID {} is identified in {} with a confidence of {}.'.format(person.face_id, os.path.basename(image.name), person.candidates[0].confidence))
-    base = Image.open(path).convert('RGBA')
-
-    draw = ImageDraw.Draw(base)
-    for face in faces:
-        draw.rectangle(getRectangle(face), outline='red')
-
-    base.show()
-    """
+    return dict_face_recognition
 
 def getCoordinatesAndConfidence(person, faces):
     face = None
@@ -122,12 +106,11 @@ def getRectangle(faceDictionary):
     return ((left, top), (right, bottom))
 
 if __name__ == '__main__':
-    #PERSON_GROUP_ID = 'my-unique-person-group'
-    #face_client = initFaceClient()
-    #initGroup(face_client, PERSON_GROUP_ID)
-    #trainFaceClient(face_client, PERSON_GROUP_ID)
+    PERSON_GROUP_ID = 'my-unique-person-group'
+    face_client = initFaceClient()
+    initGroup(face_client, PERSON_GROUP_ID)
+    trainFaceClient(face_client, PERSON_GROUP_ID)
 
-    #path = 'test-image-person-group.jpg'
-    #img = openMyImg(path)
-    #print(predictFaceClient(face_client, img, PRESON_GROUP_ID))
-    print("OK")
+    path = 'test-image-person-group.jpg'
+    img = openMyImg(path)
+    print(predictFaceClient(face_client, img, PRESON_GROUP_ID))
