@@ -8,6 +8,7 @@ import os.path
 import http.client, urllib.request, urllib.parse, urllib.error, base64
 import re
 from FaceRecognition.FaceAPIConfig import initFaceClient, predictFaceClient, initGroup
+from datetime import datetime
 from azure.storage.blob import BlockBlobService
 
 plt.rcParams.update({'font.size': 8})
@@ -115,8 +116,6 @@ json_res = send_api_helmet(filename)
 # SEND TO API FACE RECOGNITION
 
 face_detected = send_face_recognition(filename)
-if (len(face_detected) == 0):
-    print("No face detected")
 
 # PRINT IMAGE DETECTION WITH PROBABILITIES
 
@@ -125,10 +124,18 @@ tab = read_answer_api_helmet(json_res, img)
 
 # PRINT IF SAS OPEN OR NOT
 
+if (len(face_detected) != 0):
+    for line in tab:
+        if line[2] == "no helmet":
+            print("SAS closed. No helmet detected")
+else:
+    print("SAS closed. Unknown face detected")
 
 # WRITE ON CSV THE RESULT
 
-add_data("toto.csv",tab)
+date = datetime.today().strftime(("%Y-%m-%d"))
+csv_name = str(date) + ".csv" 
+add_data( csv_name,tab)
 
 # PUSH IMAGE ON DATALAKE
 
@@ -137,4 +144,6 @@ block_blob_service = BlockBlobService(
     account_key=ACCOUNT_KEY
 )
 block_blob_service.create_blob_from_path(CONTAINER_NAME_IMAGE, re.split("/", filename)[-1], filename)
-block_blob_service.create_blob_from_path(CONTAINER_NAME_CSV, "test.csv", "toto.csv")
+
+# PUSH CSV ON DATALAKE
+block_blob_service.create_blob_from_path(CONTAINER_NAME_CSV, csv_name, csv_name)
