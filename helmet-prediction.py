@@ -96,16 +96,17 @@ def send_face_recognition(filename):
     face_client = initFaceClient()
     pic = open(filename, 'r+b')
     initGroup(face_client, PERSON_GROUP_ID)
-    print(predictFaceClient(face_client, pic, PERSON_GROUP_ID))
+    res = predictFaceClient(face_client, pic, PERSON_GROUP_ID)
     pic.close()
+    return res
     
 
 
 #img, filename = get_img()
 
 ############## FOR TESTING ########
-filename = "img.jpg"
-img = plt.imread("img.jpg")
+filename = "test_img.jpg"
+img = plt.imread("test_img.jpg")
 ##################################
 
 # SEND TO API HELMET DETECTION
@@ -113,7 +114,10 @@ json_res = send_api_helmet(filename)
 
 # SEND TO API FACE RECOGNITION
 
-send_face_recognition(filename)
+face_detected = send_face_recognition(filename)
+if (len(face_detected) == 0):
+    print("No face detected")
+
 # PRINT IMAGE DETECTION WITH PROBABILITIES
 
 tab = read_answer_api_helmet(json_res, img)
