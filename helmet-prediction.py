@@ -93,21 +93,33 @@ def send_api_helmet(filename):
         print("[Errno {0}] {1}".format(e.errno, e.strerror))
 
 def send_face_recognition(filename):
-    PERSON_GROUP_ID = "my-unique-person-group"
+    PERSON_GROUP_ID = "my-unique-person-groupe"
     face_client = initFaceClient()
     pic = open(filename, 'r+b')
-    initGroup(face_client, PERSON_GROUP_ID)
+    #iinitGroup(face_client, PERSON_GROUP_ID)
     res = predictFaceClient(face_client, pic, PERSON_GROUP_ID)
     pic.close()
     return res
     
+def print_face_img(faces, img):
+    figure, ax = plt.subplots(1)
+    for name, r in faces.items():
+        print(r)
+        rect = patches.Rectangle((int(r[2]), int(r[0])), int(r[3]- r[2]), int(r[1]- r[0]), edgecolor='r', facecolor="none")
+        rect2 = patches.Rectangle((int(r[2]), int(r[0]) - 20), 130,20, color='r')
+        ax.add_patch(rect)
+        ax.add_patch(rect2)
+        plt.text(int(r[2]) + 5, int(r[0]) - 5,  name[5:] + ": "+ str(round(r[4]*100,1)) + "%", color="white")
+    ax.imshow(img)
+    #plt.savefig("result.png",bblob_inches='tight')
+    plt.show()
+        
 
-
-#img, filename = get_img()
+img, filename = get_img()
 
 ############## FOR TESTING ########
-filename = "test_img.jpg"
-img = plt.imread("test_img.jpg")
+#filename = "test_img.jpg"
+#img = plt.imread("test_img.jpg")
 ##################################
 
 # SEND TO API HELMET DETECTION
@@ -117,14 +129,18 @@ json_res = send_api_helmet(filename)
 
 face_detected = send_face_recognition(filename)
 
+print_face_img(face_detected, img)
 # PRINT IMAGE DETECTION WITH PROBABILITIES
 
 tab = read_answer_api_helmet(json_res, img)
 
 
 # PRINT IF SAS OPEN OR NOT
-
-if (len(face_detected) != 0):
+if len(tab) == 0:
+    print("SAS closed. No helmet detected")
+elif len(face_detected) != 0:
+    for f in face_detected:
+        print(f + " was detected on the photo")
     for line in tab:
         if line[2] == "no helmet":
             print("SAS closed. No helmet detected")
