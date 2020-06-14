@@ -9,7 +9,6 @@ import time
 import requests
 from urllib.parse import urlparse
 from io import BytesIO
-from PIL import Image, ImageDraw
 from azure.cognitiveservices.vision.face import FaceClient
 from msrest.authentication import CognitiveServicesCredentials
 from azure.cognitiveservices.vision.face.models import TrainingStatusType, Person, SnapshotObjectType, OperationStatusType
@@ -78,7 +77,7 @@ def openMyImg(path):
 def predictFaceClient(face_client, image, PERSON_GROUP_ID):
     dict_face_recognition = {}
     face_ids = []
-    faces = face_client.face.detect_with_stream(image)
+    faces = face_client.face.detect_with_stream(image, return_face_attributes=['gender','emotion'])
     if len(faces) == 0:
         return {}
     for face in faces:
@@ -103,7 +102,9 @@ def getCoordinatesAndConfidence(person, faces):
     right = left + rect.width
     bottom = top + rect.height
     confidence = person.candidates[0].confidence
-    return [top, bottom, left, right, confidence]
+    gender = face.face_attributes.gender.value
+    emotion = getEmotion(face.face_attributes.emotion)
+    return [top, bottom, left, right, confidence, emotion, gender]
 
 def getRectangle(faceDictionary):
     rect = faceDictionary.face_rectangle
@@ -112,6 +113,19 @@ def getRectangle(faceDictionary):
     right = left + rect.width
     bottom = top + rect.height
     return ((left, top), (right, bottom))
+
+def getEmotion(emotions):
+    max = 'anger'
+    emotions = {'anger': emotions.anger, 'contempt': emotions.contempt, 'disgust': emotions.disgust, 'fear': emotions.fear,
+            'happiness': emotions.happiness, 'neutral': emotions.neutral, 'sadness': emotions.sadness,
+            'surprise': emotions.surprise}
+    for emotion in emotions:
+        if emotion != 'neutral' and emotions[emotion] > emotions[max]:
+            max = emotion
+    if emotions[max] >= 0.15:
+        return max
+    else:
+        return 'neutral'
 
 def cleanModel(face_client, PERSON_GROUP_ID):
     if findGroupID(face_client, PERSON_GROUP_ID):
