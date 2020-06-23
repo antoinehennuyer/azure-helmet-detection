@@ -47,7 +47,7 @@ def add_data(file,tab):
                 writer.writerows(tab)
                 
     
-def read_answer_api_helmet(json_test, img):
+def read_answer_api_helmet(json_test, img, filename):
     json_test = json.loads(json_test)
     prediction_list = json_test["predictions"]
     figure, ax = plt.subplots(1)
@@ -55,13 +55,13 @@ def read_answer_api_helmet(json_test, img):
     rect_list = []
     for predic in prediction_list:
         if predic["probability"] > 0.5:
-            #print("prediction detected ! It is:" + predic["tagName"])
+            print("prediction detected ! It is:" + predic["tagName"])
             left_corner = predic["boundingBox"]["left"] * img.shape[1]
             top_corner = predic["boundingBox"]["top"] * img.shape[0]
             width = predic["boundingBox"]["width"] * img.shape[1]
             height = predic["boundingBox"]["height"] * img.shape[0]
             rect_list.append([left_corner, top_corner, width, height, predic["probability"] * 100, predic["tagName"]])
-            tab.append([json_test["id"],"toto",predic["tagName"],predic["probability"],json_test["created"], left_corner, top_corner, left_corner + width, top_corner + height])
+            tab.append([filename,"toto",predic["tagName"],predic["probability"],json_test["created"], left_corner, top_corner, left_corner + width, top_corner + height])
     for r in rect_list:
         rect = patches.Rectangle((r[0], r[1]), r[2], r[3], edgecolor='r', facecolor="none")
         rect2 = patches.Rectangle((r[0], r[1] - 20), r[2],20, color='r')
@@ -77,16 +77,15 @@ def read_answer_api_helmet(json_test, img):
 def send_api_helmet(filename):
     headers = {
         # Request headers
-        'Content-Type': 'application/octet-stream',
-        'Prediction-key': PRED_KEY,
+        'Content-Type': 'application/octet-stream'
     }
     try:
-        conn = http.client.HTTPSConnection(ZONE_AZURE)
+        conn = http.client.HTTPConnection("20.50.51.146")
         img_data = open(filename, "rb").read()
-        conn.request("POST", "/customvision/v3.0/Prediction/{0}/detect/iterations/{1}/image".format(PROJECT_ID, PROJECT_NAME) , img_data, headers)
+        conn.request("POST", "/image" , img_data, headers)
         response = conn.getresponse()
         json_test = response.read()
-        #print(data)
+        print(json_test)
         conn.close()
         return json_test
     except Exception as e:
@@ -146,7 +145,7 @@ def main():
     json_res = send_api_helmet(filename)
     face_detected = send_face_recognition(filename)
     print_face_img(face_detected, img)
-    tab = read_answer_api_helmet(json_res, img)
+    tab = read_answer_api_helmet(json_res, img, re.split("/", filename)[-1])
     date = datetime.today().strftime(("%Y-%m-%d"))
     csv_name = str(date) + ".csv" 
     rows = create_row_csv(face_detected, tab)
